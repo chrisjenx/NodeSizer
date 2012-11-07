@@ -29,7 +29,9 @@ app.get('/convert', function(req, res){
 		}else{
 			//res.setEncoding('binary');
 			res.set('Content-Type', 'image/jpeg');
-			res.send(orginalImage);
+			resize.changeImage(req.query, function(){
+				res.send(orginalImage);
+			});
 			//res.end(new Buffer(orginalImage), 'binary');
 		}
 	});
