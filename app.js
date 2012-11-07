@@ -1,6 +1,7 @@
-var express = require('express'); 
+var express = require('express');
 var _ = require("underscore");
-var easyImage = require("easyimage");
+var easyImage = require("easyimage"),
+	fs = require("fs");
 var resize = require("./modules/resizer");
 
 //Create express app
@@ -22,21 +23,34 @@ app.get('/convert', function(req, res){
 		return;
 	}
 
-	resize.getOrginalImage(req.query, function(orginalImage, start, end){
-		if(orginalImage == null){
+	// Go get the image
+	resize.getOrginalImage(req.query, function(sucess){
+		if(!sucess){
 			res.send(404, "<h3>File not found - "+req.query.source+"</h3>");
 			return;
 		}else{
 			//res.setEncoding('binary');
 			res.set('Content-Type', 'image/jpeg');
-			resize.changeImage(req.query, function(){
-				res.send(orginalImage);
+			resize.changeImage(req.query, function(err, path){
+				if(err){
+
+				}else{
+					res.set({
+					  'Content-Type' : 'image/png'
+					});
+					fs.createReadStream(path).pipe(res);
+				}
+				//res.send(orginalImage);
+
 			});
 			//res.end(new Buffer(orginalImage), 'binary');
 		}
 	});
 
 });
+
+
+
 
 
 app.listen(8080);

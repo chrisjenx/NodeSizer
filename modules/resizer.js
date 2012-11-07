@@ -41,7 +41,7 @@ exports.queryHasValidParams = function(query){
 
 // Will go and download the image
 // Returns false if fails
-// Pass in callback(image) image can be null if failed
+// Pass in callback(success) image can be null if failed
 exports.getOrginalImage = function(query,callback){
 
 	// _.each(query, function(key, val){
@@ -50,14 +50,19 @@ exports.getOrginalImage = function(query,callback){
 
 	// Image source
 	var s = query.source;
-	console.log("Download: " + s);
-
 	var savePath = getImagePath(query.source);
+	console.log("Get Image: " + s);
+	console.log("Get Image - Save path: " + savePath);
 	
 	//Create path if does not exist
-	console.log("Save path: " + savePath);
-	io.mkdir(ORGINAL_IMAGE_PATH);
-
+	if(getCachedImage(savePath)){
+		// pass back success to convert	
+		console.log("Get Image - Imaged Cached!");
+		callback(true);
+		return;
+	}else{
+		io.mkdir(ORGINAL_IMAGE_PATH);
+	}
 	var req = request(s);
 	req.on('response', function (resp) {
 		if (resp.statusCode === 200) {
@@ -89,12 +94,12 @@ exports.getOrginalImage = function(query,callback){
 			req.pipe(fs.createWriteStream(savePath));
 		} else {
 			console.log("Invalid File");
-			if(callback !== undefined) callback(null);
+			if(callback !== undefined) callback(false);
 		}
 	});
 	// Finished piping
 	req.on("end",function(){
-		if(callback !== undefined) callback({});
+		if(callback !== undefined) callback(true);
 	});
 
 };
@@ -154,15 +159,42 @@ exports.changeImage = function(query, callback){
 		// Create the new path
 		newPath += pathSep;
 		io.mkdir(newPath);
-
-		imageOptions.dst = newPath + stdout.name;
+		// Create image path
+		imageOptions.dst = newPath = newPath + stdout.name;
 
 		// Shrink image
 		easyimg.resize(imageOptions, function(err, image){
 			console.log("Error?: " + err);
+			if(err){
+				callback(err, getImagePath(getImagePath(query.source)));
+			}else{
+				callback(null, newPath);
+			}
 		});
 
 	});
+
+}
+
+// Will try and work out the best size based on the query and current image size
+//Callback(imageSize/*object*/)
+function calculateNewSize(query, callback){
+
+	
+
+}
+
+// find cached image
+// callback(success /* true/false */) 
+function getCachedImage(path){
+
+	if(!io.fileExistsSync(path)){
+		// File does not exist so.. doenst really matter
+		return false;
+	}else{
+		// Should exist
+		return true;
+	}
 
 }
 

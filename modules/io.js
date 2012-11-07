@@ -14,4 +14,26 @@ var mkdir = function(path, root) {
 
     return !dirs.length || mkdir(dirs.join(pathSep), root);
 };
+// RETURNS true or false depending if it exists
+var fileExistsSync = function(path){
+
+	try {
+	    // Query the entry
+	    var stats = fs.lstatSync(path);
+
+	    // Is it a directory?
+	    if (stats.isDirectory()) {
+	        // Yes it is
+	    }else if(stats.isFile()){
+	    	// Yes it is
+	    	return true;
+	    }
+	}
+	catch (e) {
+	}
+	return false;
+
+};
+
 exports.mkdir = mkdir;
+exports.fileExistsSync = fileExistsSync;
