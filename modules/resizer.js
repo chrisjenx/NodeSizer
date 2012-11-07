@@ -107,81 +107,101 @@ exports.getOrginalImage = function(query,callback){
 /*
  * Will take the current params and change the orginal image which is assumed to be on the server
  * and will update the size.
+ *
+ * query = the request query
+ * callback(err, newPath)
  */
 exports.changeImage = function(query, callback){
 
+	var orginalImagePath = getImagePath(query.source);
+	var imageOptions = {
+		src : orginalImagePath
+	};
+
+	// Get the new size object
+	calculateNewSize(query, function(err, imageSize){
+		if(err){
+			callback(err, orginalImagePath);
+		}else{
+			// Create the new path
+			var newPath = SIZED_IMAGE_PATH + query.size + pathSep;
+			io.mkdir(newPath);
+
+			// Merge in image size
+			imageOptions = _.extend(imageOptions, imageSize);
+			
+			// Set the image path
+			imageOptions.dst = newPath = newPath + getImageName(query.source);
+
+			// Shrink image
+			easyimg.resize(imageOptions, function(err, image){
+				console.log("Error?: " + err);
+				if(err){
+					callback(err, getImagePath(getImagePath(query.source)));
+				}else{
+					callback(null, newPath);
+				}
+			});
+		}
+	});
+}
+
+// Will try and work out the best size based on the query and current image size
+//Callback(err, imageSize/*object*/)
+function calculateNewSize(query, callback){
+
+	//Raw param
 	var widthOrHeight = query.size;
-	var nWidth = widthOrHeight;
-	var nHeight = widthOrHeight;
+	// Set to true if user passed in width by height
+	var nSizeHandW = false;
+	// Set to default raw query
+	var nWidth = nHeight = widthOrHeight;
+	//Split by 'x' (times char) and seperate the size
 	if(widthOrHeight.indexOf("x") != -1){
-		 var whArr = s.split("x");
+		 var whArr = widthOrHeight.split("x");
 		 nWidth = whArr[0];
 		 nHeight = whArr[1];
+		 nSizeHandW = true;
 	}
+	// Empty object to populate
 	var imageSize = {};
-	var imageOptions = {
-		src : getImagePath(query.source)
-	};
-	//Get current image on file
+
+		//Get current image on file
 	easyimg.info(getImagePath(query.source), function(err, stdout, stderr){
+
+		if(err){
+			callback(err, null);
+			return;
+		}
+
 		console.log(stdout);
 
-		var newPath = SIZED_IMAGE_PATH;
+		//Get current size
 		var cWidth, cHeight;
 		cWidth = stdout.width;
 		cHeight = stdout.height;
 		if(cWidth === undefined || cHeight === undefined){
 			imageSize =	{ width : nWidth };
-			newPath += nWidth;
-		}else if(nWidth != nHeight){
-			// If new height and size not the same.. check they are no bigger than the current size
+		}else if(nSizeHandW){
+			// If new height and width make sure they are smaller than the current image.
 			nWidth = Math.min(nWidth,cWidth);
 			nHeight = Math.min(nHeight,cHeight);
 			//Set new file path
-			newPath += nWidth + "x" + nHeight;
 			imageSize =	{ 
 				height : nHeight,
 			 	width : nWidth 
 			 };
 		}else{
 			// resize to to the smallest size
-			if(cWidth > cHeight){
-				imageSize =	{ width : nWidth };
-				newPath += nWidth;
+			if(cWidth >= cHeight){
+				imageSize =	{ width : Math.min(nWidth,cWidth) };
 			}else{
-				imageSize = { height : nHeight };
-				newPath += nHeight;
+				var ratio = cHeight/cWidth;
+				imageSize = { width : ratio * nHeight };
 			}
 		}
-		// Merge in image size
-		imageOptions = _.extend(imageOptions, imageSize);
-
-		// Create the new path
-		newPath += pathSep;
-		io.mkdir(newPath);
-		// Create image path
-		imageOptions.dst = newPath = newPath + stdout.name;
-
-		// Shrink image
-		easyimg.resize(imageOptions, function(err, image){
-			console.log("Error?: " + err);
-			if(err){
-				callback(err, getImagePath(getImagePath(query.source)));
-			}else{
-				callback(null, newPath);
-			}
-		});
-
+		callback(null, imageSize);
 	});
-
-}
-
-// Will try and work out the best size based on the query and current image size
-//Callback(imageSize/*object*/)
-function calculateNewSize(query, callback){
-
-	
-
 }
 
 // find cached image
