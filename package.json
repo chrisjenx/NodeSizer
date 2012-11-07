@@ -1,0 +1,12 @@
+{
+  "name": "NodeSizer",
+  "description": "NodeSizer - Image Resizer proxy",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "express": "3.0.1",
+    "request": "2.11.4",
+    "underscore" : "1.4.2",
+    "easyimage" : "0.1.3"
+  }
+}
