@@ -15,6 +15,14 @@ Currently supports
 
 An example request looks like `http://localhost:8080/convert?size=240&source=http://yoursite.com/media/yourimage.png`
 
+Nodejitsu
+---------
+Version running on nodejitsu:
+
+`http://nodesizer.jit.su/convert?size=...&source=...`
+
+Please test and let me know if you find any issues.
+
 Coming soon
 -----------
 * Caching created images

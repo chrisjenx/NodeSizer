@@ -6,11 +6,15 @@
   "dependencies": {
     "express": "3.0.x",
     "request": "2.11.x",
-    "underscore" : "1.4.x",
-    "easyimage" : "0.1.x"
+    "underscore": "1.4.x",
+    "easyimage": "0.1.x"
   },
   "engines": {
     "node": "0.8.x",
     "npm": "1.1.x"
+  },
+  "subdomain": "nodesizer",
+  "scripts": {
+    "start": "app.js"
   }
 }
