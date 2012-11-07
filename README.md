@@ -15,6 +15,11 @@ Currently supports
 
 An example request looks like `http://localhost:8080/convert?size=240&source=http://yoursite.com/media/yourimage.png`
 
+**Headers**
+
+* 1.0.1 - `Content-Creation-Time : elapsed` (Returns how long it took to create/return the image for you)
+
+
 Nodejitsu
 ---------
 Version running on nodejitsu:
@@ -25,12 +30,13 @@ Please test and let me know if you find any issues.
 
 Coming soon
 -----------
-* Caching created images
-* Override file caching
 * File type conversion (I am going to make it to default to convert to png)
+* Override file caching
 
 Versions
 --------
+* 1.0.0 <br />
+Basic server caches orginal and created images and will use them downloaded/created
 
 
 Licence

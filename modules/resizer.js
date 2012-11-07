@@ -126,12 +126,14 @@ exports.changeImage = function(query, callback){
 			// Create the new path
 			var newPath = SIZED_IMAGE_PATH + query.size + pathSep;
 			io.mkdir(newPath);
-
-			// Merge in image size
-			imageOptions = _.extend(imageOptions, imageSize);
-			
 			// Set the image path
 			imageOptions.dst = newPath = newPath + getImageName(query.source);
+			if(getCachedImage(newPath)){
+				callback(null, newPath);
+				return;
+			}
+			// Merge in image size
+			imageOptions = _.extend(imageOptions, imageSize);
 
 			// Shrink image
 			easyimg.resize(imageOptions, function(err, image){
@@ -202,6 +204,13 @@ function calculateNewSize(query, callback){
 		}
 		callback(null, imageSize);
 	});
+}
+
+
+//return the image extention
+exports.getImageExt = function(path){
+	var imageExtention = _.last(path.split("."));
+	return imageExtention;
 }
 
 // find cached image

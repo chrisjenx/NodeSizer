@@ -15,6 +15,10 @@ app.get('/', function(req, res){
 
 //Converter
 app.get('/convert', function(req, res){
+	// Using static methods:
+	var start = Date.now();
+
+
 	var validRequest = resize.queryHasValidParams(req.query);
 
 	if(!validRequest){
@@ -35,8 +39,13 @@ app.get('/convert', function(req, res){
 				if(err){
 
 				}else{
+					var end = Date.now();
+					var elapsed = end - start; // time in milliseconds
+					console.log("Convert - elapsed time: " + elapsed + "ms");
 					res.set({
-					  'Content-Type' : 'image/png'
+					  'Content-Type' : 'image/'+ resize.getImageExt(path),
+					  'Content-Creation-Time' : elapsed
+
 					});
 					fs.createReadStream(path).pipe(res);
 				}
