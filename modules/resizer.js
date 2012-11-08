@@ -114,8 +114,10 @@ exports.getOrginalImage = function(query,callback){
 exports.changeImage = function(query, callback){
 
 	var orginalImagePath = getImagePath(query.source);
+	var imageQuality = getImageQuality(query);
 	var imageOptions = {
-		src : orginalImagePath
+		src : orginalImagePath,
+		quality : imageQuality
 	};
 
 	// Get the new size object
@@ -124,10 +126,12 @@ exports.changeImage = function(query, callback){
 			callback(err, orginalImagePath);
 		}else{
 			// Create the new path
-			var newPath = SIZED_IMAGE_PATH + query.size + pathSep;
+			var newPath = SIZED_IMAGE_PATH + query.size + "_" + imageQuality + pathSep;
 			io.mkdir(newPath);
 			// Set the image path
-			imageOptions.dst = newPath = newPath + getImageName(query.source);
+			//imageOptions.dst = newPath = newPath + getImageName(query.source);
+			imageOptions.dst = newPath = newPath + getConvertedImageName(query);
+			console.log("Convert new image: " + newPath);
 			if(getCachedImage(newPath)){
 				callback(null, newPath);
 				return;
@@ -139,9 +143,17 @@ exports.changeImage = function(query, callback){
 			easyimg.resize(imageOptions, function(err, image){
 				console.log("Error?: " + err);
 				if(err){
-					callback(err, getImagePath(getImagePath(query.source)));
+					callback(err, getImagePath(query.source));
 				}else{
-					callback(null, newPath);
+					console.log("ext = " + getImageExt(newPath));
+					if(getImageExt(newPath) == "png"){				
+						easyimg.exec('optipng -o7 ' + newPath, function(err, stdout, stderr){
+							console.log("Convert new image - optipng");
+							callback(null, newPath);
+						});
+					} else {
+						callback(null, newPath);
+					}
 				}
 			});
 		}
@@ -208,10 +220,11 @@ function calculateNewSize(query, callback){
 
 
 //return the image extention
-exports.getImageExt = function(path){
+var getImageExt = function(path){
 	var imageExtention = _.last(path.split("."));
 	return imageExtention;
 }
+exports.getImageExt = getImageExt;
 
 // find cached image
 // callback(success /* true/false */) 
@@ -227,6 +240,30 @@ function getCachedImage(path){
 
 }
 
+// returns a number for quality image defaults to 80 
+function getImageQuality(query){
+	var qual = 80;
+	if(query.quality !== undefined && _.isNumber(new Number(query.quality))){
+		qual = Math.max(1, Math.min(100, query.quality));
+	}
+	console.log("Convert image - quality : " + qual);
+	return qual;
+}
+
+// Will return the image name with the new extention
+function getConvertedImageName(query){
+	var imageName = getImageName(query.source);
+	var imageNameNoExt = imageName.slice(0, imageName.lastIndexOf("."));
+	if(query.ext !== undefined){
+		if(query.ext.indexOf(".") == -1){
+			imageNameNoExt += ".";
+		}
+		imageName = imageNameNoExt + query.ext;
+	}else{
+		imageName = imageNameNoExt + ".png";
+	}
+	return imageName;
+}
 
 // Returns the path for the source image
 function getImagePath(source){

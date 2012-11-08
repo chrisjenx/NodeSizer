@@ -10,8 +10,12 @@ It's none blocking, so rolled on out on a CDN/Cloud will scale uniformly.
 Currently supports
 ------------------
 
-* `source=` the source file anywhere on the internet. (WebAddress)
-* `size=` single or widthxheight e.g. '240' (finds the largest side) '240x360' will do it exact.
+*bold* denotes required.
+
+* *`source=`* the source file anywhere on the internet. (WebAddress)
+* *`size=`* single or widthxheight e.g. '240' (finds the largest side) '240x360' will do it exact.
+* `ext=` png,jpg,gif,tiff
+* `quality=` 1-100 defaults to _80_ only works on jpeg, does a default 7 pass png optimisation.
 
 An example request looks like `http://localhost:8080/convert?size=240&source=http://yoursite.com/media/yourimage.png`
 
@@ -35,6 +39,11 @@ Coming soon
 
 Versions
 --------
+* 1.2.0 <br />
+Added png optipng when converting png's will try and optimise png's.
+* 1.1.0 <br /> 
+Added `ext=` and `quality=` params. Takes valid image format (png,gif,jpg) and quality between 1 - 100 for jpeg.<br />
+If you do not specify an extention will convert to `.png` because png's are not compressed by ISP's over networks.
 * 1.0.0 <br />
 Basic server caches orginal and created images and will use them downloaded/created
 
