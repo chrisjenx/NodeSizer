@@ -34,11 +34,12 @@ Please test and let me know if you find any issues.
 
 Coming soon
 -----------
-* File type conversion (I am going to make it to default to convert to png)
 * Override file caching
 
 Versions
 --------
+* 1.2.1 <br />
+Fixed bug with requesting 0 pixel images. Will now return 400, invalid request.
 * 1.2.0 <br />
 Added png optipng when converting png's will try and optimise png's.
 * 1.1.0 <br /> 

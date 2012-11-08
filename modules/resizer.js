@@ -21,7 +21,8 @@ exports.queryHasValidParams = function(query){
 
 	var queryIsEmpty = _.isEmpty(query);
 	var hasAll = false;
-	var validUrl = false;
+	var validUrl = false,
+		validSize = false;
 	console.log("isEmpty? " + queryIsEmpty);
 	if(!queryIsEmpty){
 		_.each(query, function(key, val){
@@ -32,11 +33,12 @@ exports.queryHasValidParams = function(query){
 			return _.has(query, key);
 		});
 		validUrl = !_.isEmpty(url.parse(query.source));
+		validSize = isValidSize(query.size);
 	}
 	console.log("Has all? " + hasAll);
 	console.log("Valid url? " + validUrl);
 
-	return (hasAll && !queryIsEmpty && validUrl);
+	return (hasAll && !queryIsEmpty && validUrl && validSize);
 };
 
 // Will go and download the image
@@ -218,6 +220,23 @@ function calculateNewSize(query, callback){
 	});
 }
 
+function isValidSize(sizeString){
+	//Split by 'x' (times char) and seperate the size
+	if(sizeString === undefined) return false;
+	var w,h;
+	if(sizeString.indexOf("x") != -1){
+		 var whArr = widthOrHeight.split("x");
+		 w = new Number(whArr[0]);
+		 h = new Number(whArr[1]);
+		 if(!_.isNumber(w) || !_.isNumber(h)) return false;
+		 if(w <= 0 || h <= 0) return false;
+	}else{
+		w = new Number(sizeString);
+		if(!_.isNumber(w) || w <= 0) return false;
+	}
+	return true;
+}
+
 
 //return the image extention
 var getImageExt = function(path){
@@ -237,7 +256,6 @@ function getCachedImage(path){
 		// Should exist
 		return true;
 	}
-
 }
 
 // returns a number for quality image defaults to 80 

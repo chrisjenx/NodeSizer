@@ -23,7 +23,7 @@ app.get('/convert', function(req, res){
 
 	if(!validRequest){
 		// Invalid request
-		res.send(400,"<h3>Invalid Request</h3><p>You require, 'source' and 'size' GET queries minimum</p>");
+		res.send(400,"<h3>Invalid Request</h3><p>You require, 'source' and 'size' GET queries minimum</p><p>If you are check your parameters. 'size' must be greater than 0!");
 		return;
 	}
 
