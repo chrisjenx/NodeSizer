@@ -18,16 +18,17 @@ var mkdir = function(path, root) {
 var fileExistsSync = function(path){
 
 	try {
+		return fs.existsSync(path);
 	    // Query the entry
-	    var stats = fs.lstatSync(path);
+	    // var stats = fs.lstatSync(path);
 
-	    // Is it a directory?
-	    if (stats.isDirectory()) {
-	        // Yes it is
-	    }else if(stats.isFile()){
-	    	// Yes it is
-	    	return true;
-	    }
+	    // // Is it a directory?
+	    // if (stats.isDirectory()) {
+	    //     // Yes it is
+	    // }else if(stats.isFile()){
+	    // 	// Yes it is
+	    // 	return true;
+	    // }
 	}
 	catch (e) {
 	}

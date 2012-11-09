@@ -21,7 +21,7 @@ An example request looks like `http://localhost:8080/convert?size=240&source=htt
 
 **Headers**
 
-* 1.0.1 - `Content-Creation-Time : elapsed` (Returns how long it took to create/return the image for you)
+* 1.0.1 - `Content-Creation-Time : [elapsed]` (Returns how long it took to create/return the image for you)
 
 
 Nodejitsu
@@ -35,9 +35,15 @@ Please test and let me know if you find any issues.
 Coming soon
 -----------
 * Override file caching
+* iPad scaling
 
 Versions
 --------
+* 1.3.0 <br />
+    * Massive improvement in caching performance! Larger files 300ms to 1ms when cached!
+    * Bug fixes.
+* 1.2.2 <br />
+Floors image sizes to 10 pixel buckets size=237 floors to 230px.
 * 1.2.1 <br />
 Fixed bug with requesting 0 pixel images. Will now return 400, invalid request.
 * 1.2.0 <br />

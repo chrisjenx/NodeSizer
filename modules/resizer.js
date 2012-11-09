@@ -122,14 +122,24 @@ exports.changeImage = function(query, callback){
 		quality : imageQuality
 	};
 
+	var newPath = SIZED_IMAGE_PATH + getNewUncheckedSizePath(query) + "_" + imageQuality + pathSep + getConvertedImageName(query);
+	// Do a simple check for current cached image..
+	if(getCachedImage(newPath)){
+		callback(null, newPath);
+		return;
+	}
+
 	// Get the new size object
 	calculateNewSize(query, function(err, imageSize){
 		if(err){
 			callback(err, orginalImagePath);
 		}else{
 			// Create the new path
-			var newPath = SIZED_IMAGE_PATH + query.size + "_" + imageQuality + pathSep;
+			var imageSizePath = imageSize.width;
+			if(imageSize.height !== undefined) imageSizePath += "x" +imageSize.height;
+			newPath = SIZED_IMAGE_PATH + imageSizePath + "_" + imageQuality + pathSep;
 			io.mkdir(newPath);
+
 			// Set the image path
 			//imageOptions.dst = newPath = newPath + getImageName(query.source);
 			imageOptions.dst = newPath = newPath + getConvertedImageName(query);
@@ -160,6 +170,25 @@ exports.changeImage = function(query, callback){
 			});
 		}
 	});
+}
+
+/* Unlike calculate size, this does not check the current file to generate a new size.
+ * Use this to ONLY see if a file has been created at the requested size before definatly doing it!
+ * As calcuating a new size loads the orginal image... which is large can be some heavy lifting!
+ *
+ * returns 240 or 240x200 etc..
+ */
+function getNewUncheckedSizePath(query){
+
+	//Raw param
+	var widthOrHeight = query.size;
+	//Split by 'x' (times char) and seperate the size
+	if(widthOrHeight.indexOf("x") != -1){
+		 var whArr = widthOrHeight.split("x");
+		 return roundSize(whArr[0]) + "x" + roundSize(whArr[1]);
+	}else{
+		return roundSize(widthOrHeight);
+	}
 }
 
 // Will try and work out the best size based on the query and current image size
@@ -197,27 +226,36 @@ function calculateNewSize(query, callback){
 		cWidth = stdout.width;
 		cHeight = stdout.height;
 		if(cWidth === undefined || cHeight === undefined){
-			imageSize =	{ width : nWidth };
+			imageSize =	{ width : roundSize(nWidth) };
 		}else if(nSizeHandW){
 			// If new height and width make sure they are smaller than the current image.
 			nWidth = Math.min(nWidth,cWidth);
 			nHeight = Math.min(nHeight,cHeight);
 			//Set new file path
 			imageSize =	{ 
-				height : nHeight,
-			 	width : nWidth 
+				height : roundSize(nHeight),
+			 	width : roundSize(nWidth)
 			 };
 		}else{
 			// resize to to the smallest size
 			if(cWidth >= cHeight){
-				imageSize =	{ width : Math.min(nWidth,cWidth) };
+				imageSize =	{ width : roundSize(Math.min(nWidth,cWidth)) };
 			}else{
 				var ratio = cHeight/cWidth;
-				imageSize = { width : ratio * nHeight };
+				imageSize = { width : roundSize(ratio * nHeight) };
 			}
 		}
 		callback(null, imageSize);
 	});
+}
+
+// Simple way of bucketing the sizes to 10 pixel ranges
+function roundSize(number){
+
+	if(number >= 10){
+		return Math.floor(number / 10) * 10
+	}
+	return number;
 }
 
 function isValidSize(sizeString){
@@ -225,7 +263,7 @@ function isValidSize(sizeString){
 	if(sizeString === undefined) return false;
 	var w,h;
 	if(sizeString.indexOf("x") != -1){
-		 var whArr = widthOrHeight.split("x");
+		 var whArr = sizeString.split("x");
 		 w = new Number(whArr[0]);
 		 h = new Number(whArr[1]);
 		 if(!_.isNumber(w) || !_.isNumber(h)) return false;
@@ -246,7 +284,7 @@ var getImageExt = function(path){
 exports.getImageExt = getImageExt;
 
 // find cached image
-// callback(success /* true/false */) 
+// return success /* true/false */
 function getCachedImage(path){
 
 	if(!io.fileExistsSync(path)){
