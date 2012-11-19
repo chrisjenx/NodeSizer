@@ -1,4 +1,5 @@
-var fs = require('fs');
+var fs = require('fs'),
+	rr = require('rimraf');
 var pathSep = require('path').sep;
 
 
@@ -36,5 +37,16 @@ var fileExistsSync = function(path){
 
 };
 
+var removeImagesPath = function(){
+	rmFolder("./images/");
+}
+
+function rmFolder(path){
+	rr(path,function(err){
+		console.log("Error deleting path " + err);
+	});
+}
+
 exports.mkdir = mkdir;
 exports.fileExistsSync = fileExistsSync;
+exports.removeImagesPath = removeImagesPath;

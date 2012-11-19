@@ -35,10 +35,14 @@ Please test and let me know if you find any issues.
 Coming soon
 -----------
 * Override file caching
+* Image Caching length
+* Content expirey headers.
 * iPad scaling
 
 Versions
 --------
+* 1.3.1 <br />
+Minor change will clear image/ path on start up.
 * 1.3.0 <br />
     * Massive improvement in caching performance! Larger files 300ms to 1ms when cached!
     * Bug fixes.

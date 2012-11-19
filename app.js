@@ -1,7 +1,8 @@
 var express = require('express');
 var _ = require("underscore");
 var easyImage = require("easyimage"),
-	fs = require("fs");
+	fs = require("fs"),
+	io = require("./modules/io");
 var resize = require("./modules/resizer");
 
 //Create express app
@@ -59,7 +60,8 @@ app.get('/convert', function(req, res){
 });
 
 
-
+//Clean the Image cache
+io.removeImagesPath();
 
 
 app.listen(8080);
