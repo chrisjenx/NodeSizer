@@ -41,6 +41,10 @@ Coming soon
 
 Versions
 --------
+* 1.3.3 <br />
+Fixed issue with not none utf8 orginal images
+* 1.3.2 <br />
+Fixed crash on sending headers twice in 404 failure.
 * 1.3.1 <br />
 Minor change will clear image/ path on start up.
 * 1.3.0 <br />

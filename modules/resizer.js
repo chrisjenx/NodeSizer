@@ -51,7 +51,8 @@ exports.getOrginalImage = function(query,callback){
 	// });
 
 	// Image source
-	var s = query.source;
+	var s = encodeURI(query.source);
+	// s = "http://api.moupp.com/media/DesahogoNorte%C3%B1o-bdb65c2c/Images/Original/Splash-bdb65c2c.jpg";
 	var savePath = getImagePath(query.source);
 	console.log("Get Image: " + s);
 	console.log("Get Image - Save path: " + savePath);
@@ -65,7 +66,7 @@ exports.getOrginalImage = function(query,callback){
 	}else{
 		io.mkdir(ORGINAL_IMAGE_PATH);
 	}
-	var req = request(s);
+	var req = request({ url : s });
 	req.on('response', function (resp) {
 		if (resp.statusCode === 200) {
 
@@ -73,14 +74,14 @@ exports.getOrginalImage = function(query,callback){
 			// 	console.log("Key => Val " + key + " " + val);
 			// });
 
-			var contentLength = parseInt(resp.headers["content-length"]);			
-			if(contentLength === NaN){
-				 contentLength = parseInt(resp.headers["Content-Length"]);
-			}
+			// var contentLength = parseInt(resp.headers["content-length"]);			
+			// if(contentLength === NaN){
+			// 	 contentLength = parseInt(resp.headers["Content-Length"]);
+			// }
 
 			// console.log("Content-Length = " +  contentLength);
-			var currByteIndex = 0;
-			var responseBody = new Buffer(contentLength);
+			// var currByteIndex = 0;
+			// var responseBody = new Buffer(contentLength);
 
 			//Grab the data object
 			// resp.setEncoding('binary');
@@ -95,8 +96,13 @@ exports.getOrginalImage = function(query,callback){
  			// });
 			req.pipe(fs.createWriteStream(savePath));
 		} else {
+			console.log("Error: Code: " + resp.statusCode);
 			console.log("Invalid File");
+			// _.each(resp, function(key, val){
+			// 	console.log("Key => " + key +" Val " + val);
+			// });
 			if(callback !== undefined) callback(false);
+			callback = undefined;
 		}
 	});
 	// Finished piping
