@@ -64,4 +64,10 @@ app.get('/convert', function(req, res){
 io.removeImagesPath();
 
 
-app.listen(8080);
+//Set up which port to listen too
+var port = 8080;
+if(process.env.NODE_PROD == "true"){
+	port = 80;
+}
+app.listen(port);
+console.log("NodeSizer started on port " + port);
