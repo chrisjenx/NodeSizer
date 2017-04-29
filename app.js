@@ -1,8 +1,8 @@
 var express = require('express');
 var _ = require("underscore");
-var easyImage = require("easyimage"),
-	fs = require("fs"),
-	io = require("./modules/io");
+var easyImage = require("easyimage");
+var fs = require("fs");
+var io = require("./modules/io");
 var resize = require("./modules/resizer");
 
 //Create express app
@@ -10,12 +10,12 @@ var app = express();
 
 app.set('title',"NodeSizer");
 
-app.get('/', function(req, res){
+app.get('/', (req, res) => {
   res.send('<p>Welcome to NodeSizer</p>');
 });
 
 //Converter
-app.get('/convert', function(req, res){
+app.get('/convert', (req, res) => {
 	// Using static methods:
 	var start = Date.now();
 
@@ -29,14 +29,14 @@ app.get('/convert', function(req, res){
 	}
 
 	// Go get the image
-	resize.getOrginalImage(req.query, function(sucess){
+	resize.getOrginalImage(req.query, sucess => {
 		if(!sucess){
 			res.send(404, "<h3>File not found - "+req.query.source+"</h3>");
 			return;
 		}else{
 			//res.setEncoding('binary');
 			res.set('Content-Type', 'image/jpeg');
-			resize.changeImage(req.query, function(err, path){
+			resize.changeImage(req.query, (err, path) => {
 				if(err){
 
 				}else{

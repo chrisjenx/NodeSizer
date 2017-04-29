@@ -1,8 +1,8 @@
-var io = require("./io"),
-	pathSep = require('path').sep;
-var request = require("request"),
-	fs = require('fs'),
-	url = require('url');
+var io = require("./io");
+var pathSep = require('path').sep;
+var request = require("request");
+var fs = require('fs');
+var url = require('url');
 var _ = require("underscore");
 var easyimg = require("easyimage");
 
@@ -15,36 +15,35 @@ exports.QUERIES_REQUIRED = ['source','size'];
 
 
 // Returns true if query has valid params
-exports.queryHasValidParams = function(query){
+exports.queryHasValidParams = query => {
+    console.log("Checking for valid params...");
 
-	console.log("Checking for valid params...");
-
-	var queryIsEmpty = _.isEmpty(query);
-	var hasAll = false;
-	var validUrl = false,
-		validSize = false;
-	console.log("isEmpty? " + queryIsEmpty);
-	if(!queryIsEmpty){
-		_.each(query, function(key, val){
+    var queryIsEmpty = _.isEmpty(query);
+    var hasAll = false;
+    var validUrl = false;
+    var validSize = false;
+    console.log("isEmpty? " + queryIsEmpty);
+    if(!queryIsEmpty){
+		_.each(query, (key, val) => {
 			//console.log("query["+val+"]");
 		});
-		hasAll = _.all(exports.QUERIES_REQUIRED, function(key, value){
+		hasAll = _.all(exports.QUERIES_REQUIRED, (key, value) => {
 			console.log("Contains '"+key+"'?");
 			return _.has(query, key);
 		});
 		validUrl = !_.isEmpty(url.parse(query.source));
 		validSize = isValidSize(query.size);
 	}
-	console.log("Has all? " + hasAll);
-	console.log("Valid url? " + validUrl);
+    console.log("Has all? " + hasAll);
+    console.log("Valid url? " + validUrl);
 
-	return (hasAll && !queryIsEmpty && validUrl && validSize);
+    return (hasAll && !queryIsEmpty && validUrl && validSize);
 };
 
 // Will go and download the image
 // Returns false if fails
 // Pass in callback(success) image can be null if failed
-exports.getOrginalImage = function(query,callback){
+exports.getOrginalImage = (query, callback) => {
 
 	// _.each(query, function(key, val){
 	// 	console.log("Key => Val " + key);
@@ -67,7 +66,7 @@ exports.getOrginalImage = function(query,callback){
 		io.mkdir(ORGINAL_IMAGE_PATH);
 	}
 	var req = request({ url : s });
-	req.on('response', function (resp) {
+	req.on('response', resp => {
 		if (resp.statusCode === 200) {
 
 			// _.each(resp.headers, function(key, val){
@@ -106,7 +105,7 @@ exports.getOrginalImage = function(query,callback){
 		}
 	});
 	// Finished piping
-	req.on("end",function(){
+	req.on("end",() => {
 		if(callback !== undefined) callback(true);
 	});
 
@@ -119,7 +118,7 @@ exports.getOrginalImage = function(query,callback){
  * query = the request query
  * callback(err, newPath)
  */
-exports.changeImage = function(query, callback){
+exports.changeImage = (query, callback) => {
 
 	var orginalImagePath = getImagePath(query.source);
 	var imageQuality = getImageQuality(query);
@@ -136,7 +135,7 @@ exports.changeImage = function(query, callback){
 	}
 
 	// Get the new size object
-	calculateNewSize(query, function(err, imageSize){
+	calculateNewSize(query, (err, imageSize) => {
 		if(err){
 			callback(err, orginalImagePath);
 		}else{
@@ -158,14 +157,14 @@ exports.changeImage = function(query, callback){
 			imageOptions = _.extend(imageOptions, imageSize);
 
 			// Shrink image
-			easyimg.resize(imageOptions, function(err, image){
+			easyimg.resize(imageOptions, (err, image) => {
 				console.log("Error?: " + err);
 				if(err){
 					callback(err, getImagePath(query.source));
 				}else{
 					console.log("ext = " + getImageExt(newPath));
 					if(getImageExt(newPath) == "png"){				
-						easyimg.exec('optipng -o7 ' + newPath, function(err, stdout, stderr){
+						easyimg.exec('optipng -o7 ' + newPath, (err, stdout, stderr) => {
 							console.log("Convert new image - optipng");
 							callback(null, newPath);
 						});
@@ -218,20 +217,21 @@ function calculateNewSize(query, callback){
 	var imageSize = {};
 
 		//Get current image on file
-	easyimg.info(getImagePath(query.source), function(err, stdout, stderr){
-
-		if(err){
+	easyimg.info(getImagePath(query.source), (err, stdout, stderr) => {
+        if(err){
 			callback(err, null);
 			return;
 		}
 
-		console.log(stdout);
+        console.log(stdout);
 
-		//Get current size
-		var cWidth, cHeight;
-		cWidth = stdout.width;
-		cHeight = stdout.height;
-		if(cWidth === undefined || cHeight === undefined){
+        //Get current size
+        var cWidth;
+
+        var cHeight;
+        cWidth = stdout.width;
+        cHeight = stdout.height;
+        if(cWidth === undefined || cHeight === undefined){
 			imageSize =	{ width : roundSize(nWidth) };
 		}else if(nSizeHandW){
 			// If new height and width make sure they are smaller than the current image.
@@ -251,8 +251,8 @@ function calculateNewSize(query, callback){
 				imageSize = { width : roundSize(ratio * nHeight) };
 			}
 		}
-		callback(null, imageSize);
-	});
+        callback(null, imageSize);
+    });
 }
 
 // Simple way of bucketing the sizes to 10 pixel ranges
@@ -265,10 +265,11 @@ function roundSize(number){
 }
 
 function isValidSize(sizeString){
-	//Split by 'x' (times char) and seperate the size
-	if(sizeString === undefined) return false;
-	var w,h;
-	if(sizeString.indexOf("x") != -1){
+    //Split by 'x' (times char) and seperate the size
+    if(sizeString === undefined) return false;
+    var w;
+    var h;
+    if(sizeString.indexOf("x") != -1){
 		 var whArr = sizeString.split("x");
 		 w = new Number(whArr[0]);
 		 h = new Number(whArr[1]);
@@ -278,12 +279,12 @@ function isValidSize(sizeString){
 		w = new Number(sizeString);
 		if(!_.isNumber(w) || w <= 0) return false;
 	}
-	return true;
+    return true;
 }
 
 
 //return the image extention
-var getImageExt = function(path){
+var getImageExt = path => {
 	var imageExtention = _.last(path.split("."));
 	return imageExtention;
 }
