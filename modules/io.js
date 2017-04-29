@@ -1,11 +1,12 @@
-var fs = require('fs'),
-	rr = require('rimraf');
+var fs = require('fs');
+var rr = require('rimraf');
 var pathSep = require('path').sep;
 
 
-var mkdir = function(path, root) {
-
-    var dirs = path.split(pathSep), dir = dirs.shift(), root = (root||'')+dir+pathSep;
+var mkdir = (path, root) => {
+    var dirs = path.split(pathSep);
+    var dir = dirs.shift();
+    var root = (root||'')+dir+pathSep;
 
     try { fs.mkdirSync(root); }
     catch (e) {
@@ -16,7 +17,7 @@ var mkdir = function(path, root) {
     return !dirs.length || mkdir(dirs.join(pathSep), root);
 };
 // RETURNS true or false depending if it exists
-var fileExistsSync = function(path){
+var fileExistsSync = path => {
 
 	try {
 		return fs.existsSync(path);
@@ -37,12 +38,12 @@ var fileExistsSync = function(path){
 
 };
 
-var removeImagesPath = function(){
+var removeImagesPath = () => {
 	rmFolder("./images/");
 }
 
 function rmFolder(path){
-	rr(path,function(err){
+	rr(path,err => {
 		console.log("Error deleting path " + err);
 	});
 }
